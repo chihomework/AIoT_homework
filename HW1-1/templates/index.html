@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簡單線性回歸模型演示</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+        h1 { color: #333; }
+        .slider-container { margin-bottom: 15px; }
+        label { display: inline-block; width: 150px; }
+        input[type="range"] { width: 200px; }
+        #results { margin-top: 20px; }
+        #error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>簡單線性回歸模型演示</h1>
+    <form id="regressionForm">
+        <div class="slider-container">
+            <label for="a">斜率 (a):</label>
+            <input type="range" id="a" name="a" min="0.1" max="5" step="0.1" value="2.0">
+        </div>
+        
+        <div class="slider-container">
+            <label for="noise_level">噪聲水平:</label>
+            <input type="range" id="noise_level" name="noise_level" min="0" max="2" step="0.1" value="0.5">
+        </div>
+        
+        <div class="slider-container">
+            <label for="num_points">數據點數量:</label>
+            <input type="range" id="num_points" name="num_points" min="10" max="1000" step="10" value="100">
+        </div>
+        
+        <input type="submit" value="生成模型">
+    </form>
+
+    <div id="results">
+        <img id="plot" src="" alt="回歸圖" style="display:none;">
+    </div>
+    <div id="error"></div>
+
+    <script>
+        $(document).ready(function() {
+            $('#regressionForm').submit(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: '/',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.error) {
+                            $('#error').text('錯誤：' + response.error);
+                            $('#plot').hide();
+                        } else {
+                            $('#error').text('');
+                            $('#plot').attr('src', 'data:image/png;base64,' + response.plot_url).show();
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $('#error').text('請求錯誤：' + textStatus);
+                        $('#plot').hide();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
